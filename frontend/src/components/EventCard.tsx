@@ -1,0 +1,74 @@
+import type { NewsEvent } from "@/types/events";
+import SeverityBadge from "./SeverityBadge";
+
+interface EventCardProps {
+  event: NewsEvent;
+  isSelected?: boolean;
+  onHover?: (id: string | null) => void;
+  onClick?: (id: string) => void;
+}
+
+export default function EventCard({
+  event,
+  isSelected,
+  onHover,
+  onClick,
+}: EventCardProps) {
+  const timeAgo = getTimeAgo(event.published_at);
+
+  return (
+    <article
+      className={`event-card p-3.5 cursor-pointer ${
+        isSelected ? "event-card-selected" : ""
+      }`}
+      onMouseEnter={() => onHover?.(event.id)}
+      onMouseLeave={() => onHover?.(null)}
+      onClick={() => onClick?.(event.id)}
+    >
+      <div className="flex items-center gap-2 mb-1.5">
+        <SeverityBadge severity={event.severity} />
+        <span className="text-[11px] text-gray-600 capitalize">
+          {event.category}
+        </span>
+        <span className="text-[11px] text-gray-700 ml-auto font-[family-name:var(--font-jetbrains)]">
+          {timeAgo}
+        </span>
+      </div>
+      <h3 className="text-[13px] font-medium leading-snug mb-1 text-gray-200">
+        {event.headline}
+      </h3>
+      {event.summary && (
+        <p className="text-[12px] text-gray-500 line-clamp-2 mb-1.5 leading-relaxed">
+          {event.summary}
+        </p>
+      )}
+      <div className="flex items-center justify-between text-[11px] text-gray-600">
+        <span>{event.source_name}</span>
+        {event.location_name && (
+          <span className="font-[family-name:var(--font-jetbrains)] text-[10px] text-gray-600">
+            {event.location_name}
+          </span>
+        )}
+      </div>
+      <a
+        href={event.source_url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-[11px] text-[#e63946]/60 hover:text-[#e63946] mt-1.5 inline-block transition-colors"
+        onClick={(e) => e.stopPropagation()}
+      >
+        Read source &rarr;
+      </a>
+    </article>
+  );
+}
+
+function getTimeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 60) return `${minutes}m`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h`;
+  const days = Math.floor(hours / 24);
+  return `${days}d`;
+}

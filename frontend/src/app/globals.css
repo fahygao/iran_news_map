@@ -1,0 +1,256 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: #0a0c10;
+  --color-foreground: #e2e4e9;
+  --color-crimson: #e63946;
+  --color-crimson-dim: #b91c2a;
+  --color-surface: #10131a;
+  --color-surface-raised: #161a24;
+  --color-border: rgba(255, 255, 255, 0.06);
+  --color-border-active: rgba(255, 255, 255, 0.12);
+  --font-sans: var(--font-dm-sans);
+  --font-mono: var(--font-jetbrains);
+}
+
+/* ── Base ─────────────────────────────────────────── */
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* ── Header bar ───────────────────────────────────── */
+
+.header-bar {
+  background: linear-gradient(
+    180deg,
+    rgba(16, 19, 26, 0.95) 0%,
+    rgba(10, 12, 16, 0.92) 100%
+  );
+  backdrop-filter: blur(12px) saturate(1.2);
+}
+
+/* Live dot pulse */
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-crimson);
+  box-shadow: 0 0 6px var(--color-crimson), 0 0 12px rgba(230, 57, 70, 0.3);
+  animation: pulse-dot 2.4s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; box-shadow: 0 0 6px var(--color-crimson), 0 0 12px rgba(230, 57, 70, 0.3); }
+  50%      { opacity: 0.5; box-shadow: 0 0 3px var(--color-crimson), 0 0 6px rgba(230, 57, 70, 0.15); }
+}
+
+/* "IRAN" crimson glow text */
+.iran-glow {
+  color: var(--color-crimson);
+  text-shadow:
+    0 0 8px rgba(230, 57, 70, 0.5),
+    0 0 20px rgba(230, 57, 70, 0.15);
+  letter-spacing: 0.08em;
+  font-family: var(--font-mono), monospace;
+  font-weight: 600;
+}
+
+/* Nav links */
+.nav-link {
+  color: #6b7280;
+  letter-spacing: 0.06em;
+  font-family: var(--font-mono), monospace;
+  transition: color 0.2s, background 0.2s;
+}
+
+.nav-link:hover {
+  color: #d1d5db;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* ── Map overlays ─────────────────────────────────── */
+
+/* Zone toggle */
+.zone-toggle {
+  background: rgba(16, 19, 26, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.zone-toggle:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(22, 26, 36, 0.95);
+}
+
+/* Map legend panel */
+.map-legend {
+  background: rgba(10, 12, 16, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(14px);
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+/* ── Filter bar ───────────────────────────────────── */
+
+.filter-bar {
+  background: linear-gradient(
+    180deg,
+    rgba(16, 19, 26, 0.8) 0%,
+    rgba(10, 12, 16, 0.6) 100%
+  );
+  backdrop-filter: blur(8px);
+}
+
+.filter-chip {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+}
+
+.filter-chip:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.filter-chip-active {
+  background: rgba(230, 57, 70, 0.12) !important;
+  border-color: rgba(230, 57, 70, 0.3) !important;
+  color: #f5a3aa !important;
+}
+
+/* ── News feed ────────────────────────────────────── */
+
+.event-card {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  transition: background 0.15s;
+}
+
+.event-card:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.event-card-selected {
+  background: rgba(230, 57, 70, 0.05) !important;
+  border-left: 2px solid var(--color-crimson);
+}
+
+/* ── Leaflet overrides ────────────────────────────── */
+
+.leaflet-popup-content-wrapper {
+  background: rgba(16, 19, 26, 0.96) !important;
+  color: #e2e4e9 !important;
+  border-radius: 8px !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+.leaflet-popup-tip {
+  background: rgba(16, 19, 26, 0.96) !important;
+}
+
+.leaflet-popup-close-button {
+  color: #6b7280 !important;
+}
+
+.leaflet-popup-close-button:hover {
+  color: #e2e4e9 !important;
+}
+
+.leaflet-control-zoom a {
+  background: rgba(16, 19, 26, 0.88) !important;
+  color: #9ca3af !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background: rgba(22, 26, 36, 0.95) !important;
+  color: #e2e4e9 !important;
+}
+
+.leaflet-control-attribution {
+  background: rgba(10, 12, 16, 0.7) !important;
+  color: #4b5563 !important;
+  font-size: 10px !important;
+}
+
+.leaflet-control-attribution a {
+  color: #6b7280 !important;
+}
+
+/* Emoji marker */
+.emoji-marker {
+  background: transparent !important;
+  border: none !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Zone tooltip */
+.zone-tooltip {
+  background: rgba(16, 19, 26, 0.94) !important;
+  color: #d1d5db !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 4px !important;
+  padding: 4px 10px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+  font-family: var(--font-mono), monospace !important;
+  font-size: 11px !important;
+  letter-spacing: 0.02em !important;
+}
+
+.zone-tooltip::before {
+  border-top-color: rgba(16, 19, 26, 0.94) !important;
+}
+
+/* ── Severity colors ──────────────────────────────── */
+
+.severity-critical { background: #e63946; color: white; }
+.severity-high     { background: #e87d2f; color: white; }
+.severity-medium   { background: #c9a227; color: #1a1a1a; }
+.severity-low      { background: #3b82f6; color: white; }
+
+/* ── Scrollbar ────────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* ── Loading state ────────────────────────────────── */
+
+.loading-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.02) 25%,
+    rgba(255, 255, 255, 0.05) 50%,
+    rgba(255, 255, 255, 0.02) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
