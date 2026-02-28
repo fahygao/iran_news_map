@@ -66,6 +66,18 @@ def init_db():
             is_healthy INTEGER NOT NULL DEFAULT 1,
             article_count INTEGER NOT NULL DEFAULT 0
         );
+
+        CREATE TABLE IF NOT EXISTS predictions (
+            id TEXT PRIMARY KEY,
+            latitude REAL NOT NULL,
+            longitude REAL NOT NULL,
+            grid_lat REAL NOT NULL,
+            grid_lng REAL NOT NULL,
+            ip_hash TEXT,
+            created_at TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_pred_grid ON predictions(grid_lat, grid_lng);
+        CREATE INDEX IF NOT EXISTS idx_pred_ip ON predictions(ip_hash, created_at);
     """)
     # Seed data source status rows
     sources = ["google_news", "gdelt_geo", "gdelt_doc"]
@@ -257,6 +269,60 @@ def update_source_status(source_key: str, success: bool, error: str = None):
         )
     conn.commit()
     conn.close()
+
+
+import math
+
+
+def _snap_to_grid(val):
+    """Floor to nearest 0.5° cell."""
+    return math.floor(val * 2) / 2
+
+
+def insert_prediction(lat, lng, ip_hash):
+    conn = get_db()
+    grid_lat = _snap_to_grid(lat)
+    grid_lng = _snap_to_grid(lng)
+    conn.execute(
+        """INSERT INTO predictions (id, latitude, longitude, grid_lat, grid_lng, ip_hash, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?)""",
+        (
+            str(uuid.uuid4()),
+            lat,
+            lng,
+            grid_lat,
+            grid_lng,
+            ip_hash,
+            datetime.now(timezone.utc).isoformat(),
+        ),
+    )
+    conn.commit()
+    count = conn.execute(
+        "SELECT COUNT(*) FROM predictions WHERE grid_lat = ? AND grid_lng = ?",
+        (grid_lat, grid_lng),
+    ).fetchone()[0]
+    conn.close()
+    return {"cell_count": count, "grid_lat": grid_lat, "grid_lng": grid_lng}
+
+
+def get_prediction_grid():
+    conn = get_db()
+    rows = conn.execute(
+        "SELECT grid_lat, grid_lng, COUNT(*) as count FROM predictions GROUP BY grid_lat, grid_lng"
+    ).fetchall()
+    total = conn.execute("SELECT COUNT(*) FROM predictions").fetchone()[0]
+    conn.close()
+    return [dict(r) for r in rows], total
+
+
+def check_rate_limit(ip_hash, max_per_hour=10):
+    conn = get_db()
+    count = conn.execute(
+        "SELECT COUNT(*) FROM predictions WHERE ip_hash = ? AND created_at >= datetime('now', '-1 hour')",
+        (ip_hash,),
+    ).fetchone()[0]
+    conn.close()
+    return count >= max_per_hour
 
 
 def cleanup_old_data(days: int = 90):

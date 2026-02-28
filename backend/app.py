@@ -1,3 +1,4 @@
+import hashlib
 import json
 from datetime import datetime, timedelta, timezone
 
@@ -242,6 +243,33 @@ def _serialize_event(e: dict) -> dict:
         "origin_longitude": e.get("origin_longitude"),
         "origin_name": e.get("origin_name"),
     }
+
+
+@app.route("/api/predictions", methods=["GET"])
+def api_get_predictions():
+    cells, total = models.get_prediction_grid()
+    return jsonify({"cells": cells, "total": total})
+
+
+@app.route("/api/predictions", methods=["POST"])
+def api_submit_prediction():
+    data = request.get_json(silent=True)
+    if not data:
+        return jsonify({"error": "JSON body required"}), 400
+
+    lat = data.get("latitude")
+    lng = data.get("longitude")
+    if not isinstance(lat, (int, float)) or not isinstance(lng, (int, float)):
+        return jsonify({"error": "latitude and longitude must be numbers"}), 400
+
+    ip_raw = request.headers.get("X-Forwarded-For", request.remote_addr) or "unknown"
+    ip_hash = hashlib.sha256(ip_raw.encode()).hexdigest()
+
+    if models.check_rate_limit(ip_hash):
+        return jsonify({"error": "Rate limit exceeded. Max 10 predictions per hour."}), 429
+
+    result = models.insert_prediction(lat, lng, ip_hash)
+    return jsonify(result), 201
 
 
 @app.route("/api/fetch", methods=["POST"])

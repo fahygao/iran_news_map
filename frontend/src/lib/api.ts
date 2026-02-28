@@ -3,6 +3,8 @@ import type {
   GeoEventsResponse,
   TimelineResponse,
   StatusResponse,
+  PredictionsResponse,
+  PredictionSubmitResponse,
   Category,
   Severity,
 } from "@/types/events";
@@ -66,4 +68,24 @@ export async function getTimelineEvents(options?: {
 
 export async function getStatus(): Promise<StatusResponse> {
   return fetchAPI<StatusResponse>("/status");
+}
+
+export async function getPredictions(): Promise<PredictionsResponse> {
+  return fetchAPI<PredictionsResponse>("/predictions");
+}
+
+export async function submitPrediction(
+  lat: number,
+  lng: number
+): Promise<PredictionSubmitResponse> {
+  const url = `${API_URL}/predictions`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ latitude: lat, longitude: lng }),
+  });
+  if (!res.ok) {
+    throw new Error(`API error: ${res.status} ${res.statusText}`);
+  }
+  return res.json();
 }
