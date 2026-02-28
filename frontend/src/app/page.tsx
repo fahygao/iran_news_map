@@ -13,7 +13,7 @@ const Map = dynamic(() => import("@/components/Map"), {
     <div className="w-full h-full bg-[#0a0c10] flex items-center justify-center">
       <div className="flex items-center gap-2.5">
         <div className="status-dot" />
-        <span className="text-[13px] text-gray-600 font-[family-name:var(--font-jetbrains)] tracking-wide">
+        <span className="text-[12px] sm:text-[13px] text-gray-600 font-[family-name:var(--font-jetbrains)] tracking-wide">
           INITIALIZING...
         </span>
       </div>
@@ -54,9 +54,9 @@ export default function Home() {
           />
         </div>
       </div>
-      {/* Mobile: stacked */}
+      {/* Mobile: stacked — map gets 55vh, news is compact */}
       <div className="flex md:hidden flex-col flex-1 min-h-0">
-        <div className="h-[40vh] shrink-0">
+        <div className="h-[55vh] shrink-0">
           <Map
             category={activeCategory}
             severity={activeSeverity}

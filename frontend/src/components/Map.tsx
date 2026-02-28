@@ -22,6 +22,7 @@ import type {
 } from "@/types/events";
 import { getGeoEvents } from "@/lib/api";
 import { CONFLICT_ZONES } from "@/lib/conflictZones";
+import { useI18n } from "@/lib/i18n";
 import EventPopup from "./EventPopup";
 
 const IRAN_CENTER: [number, number] = [32.4279, 53.688];
@@ -72,6 +73,7 @@ export default function Map({
   selectedEventId,
   onEventSelect,
 }: MapProps) {
+  const { t } = useI18n();
   const [geoData, setGeoData] = useState<GeoEventsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -121,7 +123,6 @@ export default function Map({
             f.properties.marker_type === "explosion")
       )
       .filter((f) => {
-        // Deduplicate by rounding coords to ~10km grid
         const key = `${f.properties.origin_name}-${Math.round(f.geometry.coordinates[1])},${Math.round(f.geometry.coordinates[0])}`;
         if (seen.has(key)) return false;
         seen.add(key);
@@ -150,8 +151,8 @@ export default function Map({
         <div className="absolute inset-0 z-[1000] flex items-center justify-center bg-[#0a0c10]/60 backdrop-blur-[2px]">
           <div className="flex items-center gap-2.5">
             <div className="status-dot" />
-            <span className="text-[13px] text-gray-400 font-[family-name:var(--font-jetbrains)] tracking-wide">
-              LOADING INTEL...
+            <span className="text-[12px] sm:text-[13px] text-gray-400 font-[family-name:var(--font-jetbrains)] tracking-wide">
+              {t("map.loadingIntel")}
             </span>
           </div>
         </div>
@@ -167,32 +168,32 @@ export default function Map({
       {/* Zone toggle */}
       <button
         onClick={() => setShowZones(!showZones)}
-        className="zone-toggle absolute top-4 right-4 z-[1000] px-3 py-1.5 rounded text-[11px] font-[family-name:var(--font-jetbrains)] tracking-wider text-gray-400 hover:text-gray-200 cursor-pointer"
+        className="zone-toggle absolute top-4 right-4 z-[1000] px-2.5 sm:px-3 py-1.5 rounded text-[10px] sm:text-[11px] font-[family-name:var(--font-jetbrains)] tracking-wider text-gray-400 hover:text-gray-200 cursor-pointer"
       >
-        {showZones ? "HIDE ZONES" : "SHOW ZONES"}
+        {showZones ? t("map.hideZones") : t("map.showZones")}
       </button>
 
-      {/* Legend */}
-      <div className="map-legend absolute bottom-6 right-4 z-[1000] rounded-lg px-4 py-3 min-w-[160px]">
+      {/* Legend - hidden on mobile, visible on sm+ */}
+      <div className="map-legend absolute bottom-6 right-4 z-[1000] rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 min-w-[140px] sm:min-w-[160px] hidden sm:block">
         <div className="text-[10px] text-gray-500 font-[family-name:var(--font-jetbrains)] tracking-[0.1em] mb-2.5 uppercase">
-          Event Type
+          {t("map.eventType")}
         </div>
         <div className="space-y-2">
           {[
-            { emoji: "\u{1F680}", label: "Rocket / Missile" },
-            { emoji: "\u{1F4A5}", label: "Explosion / Bombing" },
-            { emoji: "\u{1F525}", label: "Conflict / Battle" },
-            { emoji: "\u{1F4F0}", label: "General Report" },
+            { emoji: "\u{1F680}", key: "map.rocket" },
+            { emoji: "\u{1F4A5}", key: "map.explosion" },
+            { emoji: "\u{1F525}", key: "map.fire" },
+            { emoji: "\u{1F4F0}", key: "map.general" },
           ].map((item) => (
-            <div key={item.label} className="flex items-center gap-2.5">
+            <div key={item.key} className="flex items-center gap-2.5">
               <span className="text-[16px] w-5 text-center">{item.emoji}</span>
-              <span className="text-[12px] text-gray-400">{item.label}</span>
+              <span className="text-[12px] text-gray-400">{t(item.key)}</span>
             </div>
           ))}
         </div>
         <div className="mt-3 pt-2.5 border-t border-white/[0.06]">
           <div className="text-[10px] text-gray-500 font-[family-name:var(--font-jetbrains)] tracking-[0.1em] mb-2 uppercase">
-            Severity
+            {t("map.severity")}
           </div>
           <div className="flex gap-1.5">
             {[
@@ -218,7 +219,7 @@ export default function Map({
         </div>
         {!loading && features.length > 0 && (
           <div className="mt-2.5 pt-2 border-t border-white/[0.06] text-[10px] text-gray-600 font-[family-name:var(--font-jetbrains)]">
-            {features.length} events plotted
+            {features.length} {t("map.eventsPlotted")}
           </div>
         )}
       </div>
@@ -274,7 +275,7 @@ export default function Map({
             }}
           >
             <Tooltip sticky className="zone-tooltip">
-              <span>Origin: {route.originName || "Unknown"}</span>
+              <span>{t("map.origin")}: {route.originName || "Unknown"}</span>
             </Tooltip>
           </Polyline>
         ))}
@@ -343,8 +344,8 @@ export default function Map({
       </MapContainer>
 
       {!loading && features.length === 0 && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-[1000] bg-[#10131a]/90 border border-white/[0.06] text-gray-500 px-4 py-2 rounded-lg text-[13px] backdrop-blur-sm font-[family-name:var(--font-jetbrains)]">
-          NO EVENTS MATCH CURRENT FILTERS
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-[1000] bg-[#10131a]/90 border border-white/[0.06] text-gray-500 px-4 py-2 rounded-lg text-[12px] sm:text-[13px] backdrop-blur-sm font-[family-name:var(--font-jetbrains)]">
+          {t("map.noEvents")}
         </div>
       )}
     </div>

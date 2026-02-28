@@ -1,4 +1,7 @@
+"use client";
+
 import type { NewsEvent } from "@/types/events";
+import { useI18n } from "@/lib/i18n";
 import SeverityBadge from "./SeverityBadge";
 
 interface EventCardProps {
@@ -14,38 +17,39 @@ export default function EventCard({
   onHover,
   onClick,
 }: EventCardProps) {
+  const { t } = useI18n();
   const timeAgo = getTimeAgo(event.published_at);
 
   return (
     <article
-      className={`event-card p-3.5 cursor-pointer ${
+      className={`event-card p-2.5 sm:p-3.5 cursor-pointer ${
         isSelected ? "event-card-selected" : ""
       }`}
       onMouseEnter={() => onHover?.(event.id)}
       onMouseLeave={() => onHover?.(null)}
       onClick={() => onClick?.(event.id)}
     >
-      <div className="flex items-center gap-2 mb-1.5">
+      <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-1.5">
         <SeverityBadge severity={event.severity} />
-        <span className="text-[11px] text-gray-600 capitalize">
-          {event.category}
+        <span className="text-[10px] sm:text-[11px] text-gray-600 capitalize">
+          {t(`cat.${event.category}`)}
         </span>
-        <span className="text-[11px] text-gray-700 ml-auto font-[family-name:var(--font-jetbrains)]">
+        <span className="text-[10px] sm:text-[11px] text-gray-700 ml-auto font-[family-name:var(--font-jetbrains)]">
           {timeAgo}
         </span>
       </div>
-      <h3 className="text-[13px] font-medium leading-snug mb-1 text-gray-200">
+      <h3 className="text-[12px] sm:text-[13px] font-medium leading-snug mb-0.5 sm:mb-1 text-gray-200">
         {event.headline}
       </h3>
       {event.summary && (
-        <p className="text-[12px] text-gray-500 line-clamp-2 mb-1.5 leading-relaxed">
+        <p className="text-[11px] sm:text-[12px] text-gray-500 line-clamp-2 mb-1 sm:mb-1.5 leading-relaxed hidden sm:block">
           {event.summary}
         </p>
       )}
-      <div className="flex items-center justify-between text-[11px] text-gray-600">
+      <div className="flex items-center justify-between text-[10px] sm:text-[11px] text-gray-600">
         <span>{event.source_name}</span>
         {event.location_name && (
-          <span className="font-[family-name:var(--font-jetbrains)] text-[10px] text-gray-600">
+          <span className="font-[family-name:var(--font-jetbrains)] text-[9px] sm:text-[10px] text-gray-600">
             {event.location_name}
           </span>
         )}
@@ -54,10 +58,10 @@ export default function EventCard({
         href={event.source_url}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-[11px] text-[#e63946]/60 hover:text-[#e63946] mt-1.5 inline-block transition-colors"
+        className="text-[10px] sm:text-[11px] text-[#e63946]/60 hover:text-[#e63946] mt-1 sm:mt-1.5 inline-block transition-colors"
         onClick={(e) => e.stopPropagation()}
       >
-        Read source &rarr;
+        {t("news.readSource")} &rarr;
       </a>
     </article>
   );
