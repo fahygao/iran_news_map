@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { getStatus } from "@/lib/api";
+import { useI18n } from "@/lib/i18n";
 
 export default function StatusBanner() {
+  const { t } = useI18n();
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const [isStale, setIsStale] = useState(false);
   const [minutesAgo, setMinutesAgo] = useState<number | null>(null);
@@ -23,12 +25,10 @@ export default function StatusBanner() {
       }
     }
     checkStatus();
-    // Re-check every 2 minutes
     const id = setInterval(checkStatus, 120_000);
     return () => clearInterval(id);
   }, []);
 
-  // Update "X min ago" every 30 seconds
   useEffect(() => {
     if (!lastUpdated) return;
 
@@ -45,16 +45,16 @@ export default function StatusBanner() {
   if (!isStale && minutesAgo !== null && minutesAgo < 60) return null;
 
   return (
-    <div className="bg-[#c9a227]/[0.06] border-b border-[#c9a227]/20 text-[#c9a227]/70 text-[11px] px-5 py-1.5 font-[family-name:var(--font-jetbrains)] tracking-wide flex items-center justify-center gap-2">
-      <span>DATA MAY NOT BE CURRENT</span>
+    <div className="bg-[#c9a227]/[0.06] border-b border-[#c9a227]/20 text-[#c9a227]/70 text-[10px] sm:text-[11px] px-4 sm:px-5 py-1.5 font-[family-name:var(--font-jetbrains)] tracking-wide flex items-center justify-center gap-2">
+      <span>{t("status.stale")}</span>
       {minutesAgo !== null && (
         <span className="text-[#c9a227]/50">
-          &mdash; last updated{" "}
+          &mdash; {t("status.lastUpdated")}{" "}
           {minutesAgo < 60
-            ? `${minutesAgo}m ago`
+            ? `${minutesAgo}${t("status.mAgo")}`
             : minutesAgo < 1440
-              ? `${Math.floor(minutesAgo / 60)}h ago`
-              : `${Math.floor(minutesAgo / 1440)}d ago`}
+              ? `${Math.floor(minutesAgo / 60)}${t("status.hAgo")}`
+              : `${Math.floor(minutesAgo / 1440)}${t("status.dAgo")}`}
         </span>
       )}
     </div>

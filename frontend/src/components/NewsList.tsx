@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import type { NewsEvent, Category, Severity } from "@/types/events";
 import { getEvents } from "@/lib/api";
+import { useI18n } from "@/lib/i18n";
 import EventCard from "./EventCard";
 
 interface NewsListProps {
@@ -20,6 +21,7 @@ export default function NewsList({
   onEventSelect,
   onEventHover,
 }: NewsListProps) {
+  const { t } = useI18n();
   const [events, setEvents] = useState<NewsEvent[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -67,9 +69,9 @@ export default function NewsList({
 
   return (
     <div className="flex flex-col h-full bg-[#0a0c10]">
-      <div className="px-4 py-2.5 border-b border-white/[0.04] flex items-center justify-between">
-        <h2 className="text-[12px] font-[family-name:var(--font-jetbrains)] tracking-[0.08em] text-gray-500 uppercase">
-          Intel Feed
+      <div className="px-3 sm:px-4 py-2 sm:py-2.5 border-b border-white/[0.04] flex items-center justify-between">
+        <h2 className="text-[11px] sm:text-[12px] font-[family-name:var(--font-jetbrains)] tracking-[0.08em] text-gray-500 uppercase">
+          {t("news.title")}
           <span className="ml-2 text-gray-700">
             {total}
           </span>
@@ -77,8 +79,8 @@ export default function NewsList({
       </div>
       <div className="flex-1 overflow-y-auto">
         {events.length === 0 && !loading && (
-          <div className="flex items-center justify-center h-32 text-gray-600 text-[13px] font-[family-name:var(--font-jetbrains)]">
-            NO MATCHING EVENTS
+          <div className="flex items-center justify-center h-32 text-gray-600 text-[12px] sm:text-[13px] font-[family-name:var(--font-jetbrains)]">
+            {t("news.noMatch")}
           </div>
         )}
         {events.map((event) => (
@@ -94,17 +96,17 @@ export default function NewsList({
           <button
             onClick={() => fetchData(false)}
             disabled={loading}
-            className="w-full py-3 text-[12px] text-gray-600 hover:text-gray-400 hover:bg-white/[0.02] transition-colors disabled:opacity-50 font-[family-name:var(--font-jetbrains)] tracking-wide cursor-pointer"
+            className="w-full py-2.5 sm:py-3 text-[11px] sm:text-[12px] text-gray-600 hover:text-gray-400 hover:bg-white/[0.02] transition-colors disabled:opacity-50 font-[family-name:var(--font-jetbrains)] tracking-wide cursor-pointer"
           >
-            {loading ? "LOADING..." : "LOAD MORE"}
+            {loading ? t("news.loading") : t("news.loadMore")}
           </button>
         )}
         {loading && events.length === 0 && (
           <div className="flex items-center justify-center h-32">
             <div className="flex items-center gap-2">
               <div className="status-dot" />
-              <span className="text-[12px] text-gray-600 font-[family-name:var(--font-jetbrains)] tracking-wide">
-                LOADING...
+              <span className="text-[11px] sm:text-[12px] text-gray-600 font-[family-name:var(--font-jetbrains)] tracking-wide">
+                {t("news.loading")}
               </span>
             </div>
           </div>

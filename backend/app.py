@@ -8,7 +8,7 @@ import config
 import models
 
 app = Flask(__name__)
-CORS(app, origins="*")
+CORS(app, origins=["https://iran-news-map.vercel.app", "http://localhost:3000"])
 
 models.init_db()
 
