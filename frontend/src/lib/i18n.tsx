@@ -72,6 +72,27 @@ const translations: Record<string, Record<Locale, string>> = {
   "badge.high": { en: "HIGH", zh: "高危" },
   "badge.medium": { en: "MED", zh: "中等" },
   "badge.low": { en: "LOW", zh: "低" },
+
+  // Predict page
+  "nav.predict": { en: "PREDICT", zh: "预测" },
+  "predict.instruction": { en: "CLICK MAP TO PREDICT NEXT STRIKE ZONE", zh: "点击地图预测下一个打击区域" },
+  "predict.predictions": { en: "predictions", zh: "条预测" },
+  "predict.totalPredictions": { en: "total predictions", zh: "条总预测" },
+  "predict.yourPick": { en: "YOUR PICK", zh: "你的选择" },
+  "predict.activeDanger": { en: "ACTIVE DANGER", zh: "活跃危险" },
+  "predict.dangerZone": { en: "Active danger zone", zh: "活跃危险区域" },
+  "predict.legend": { en: "PREDICTION DENSITY", zh: "预测密度" },
+  "predict.hot": { en: "Hot", zh: "热门" },
+  "predict.warm": { en: "Warm", zh: "较多" },
+  "predict.moderate": { en: "Moderate", zh: "一般" },
+  "predict.cool": { en: "Cool", zh: "较少" },
+  "predict.loading": { en: "LOADING PREDICTIONS...", zh: "加载预测中..." },
+  "predict.tooMany": { en: "SLOW DOWN — TRY AGAIN LATER", zh: "请稍后再试" },
+  "predict.cellCount": { en: "{count} predictions in this zone", zh: "该区域有 {count} 条预测" },
+  "predict.confirmQuestion": { en: "CONFIRM THIS LOCATION?", zh: "确认此位置？" },
+  "predict.confirm": { en: "CONFIRM", zh: "确认" },
+  "predict.cancel": { en: "CANCEL", zh: "取消" },
+  "predict.tapToConfirm": { en: "Tap CONFIRM above", zh: "点击上方确认" },
 };
 
 interface I18nContextValue {

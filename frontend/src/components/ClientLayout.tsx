@@ -31,6 +31,12 @@ function Header() {
           >
             {t("nav.timeline")}
           </Link>
+          <Link
+            href="/predict"
+            className="nav-link px-2.5 sm:px-3 py-1.5 rounded text-[12px] sm:text-[13px] font-medium tracking-wide"
+          >
+            {t("nav.predict")}
+          </Link>
           <div className="w-px h-4 bg-white/[0.06] mx-1" />
           <button
             onClick={() => setLocale(locale === "en" ? "zh" : "en")}

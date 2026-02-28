@@ -178,6 +178,11 @@ body {
   border-left: 2px solid var(--color-crimson);
 }
 
+/* ── Predict crosshair cursor ─────────────────────── */
+
+.predict-crosshair .leaflet-container { cursor: crosshair !important; }
+.predict-crosshair .leaflet-interactive { cursor: crosshair !important; }
+
 /* ── Leaflet overrides ────────────────────────────── */
 
 .leaflet-popup-content-wrapper {

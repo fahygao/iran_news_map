@@ -94,3 +94,20 @@ export interface StatusResponse {
   total_events: number;
   alerts_sent_today: number;
 }
+
+export interface PredictionCell {
+  grid_lat: number;
+  grid_lng: number;
+  count: number;
+}
+
+export interface PredictionsResponse {
+  cells: PredictionCell[];
+  total: number;
+}
+
+export interface PredictionSubmitResponse {
+  cell_count: number;
+  grid_lat: number;
+  grid_lng: number;
+}
