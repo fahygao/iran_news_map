@@ -31,7 +31,7 @@ CATEGORIES = ["conflict", "military", "diplomatic", "political", "humanitarian"]
 
 OPENSKY_USERNAME = os.getenv("OPENSKY_USERNAME", "")
 OPENSKY_PASSWORD = os.getenv("OPENSKY_PASSWORD", "")
-OPENSKY_BBOX = {"lamin": 14.5, "lomin": 21.25, "lamax": 47.5, "lomax": 73.75}
+OPENSKY_BBOX = {"lamin": 20, "lomin": 30, "lamax": 42, "lomax": 65}
 
 DATA_RETENTION_DAYS = 90
 CACHE_MAX_AGE = 300  # 5 minutes
