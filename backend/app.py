@@ -1,5 +1,6 @@
 import hashlib
 import json
+import logging
 import threading
 import time
 from datetime import datetime, timedelta, timezone
@@ -10,6 +11,10 @@ from flask_cors import CORS
 import config
 import models
 from fetchers.opensky import fetch_flights
+from log_config import setup_logging
+
+setup_logging()
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 CORS(app, origins=["https://iran-news-map.vercel.app", "http://localhost:3000"])
@@ -322,8 +327,7 @@ def _safe_fetch():
         from tasks.fetch_news import run_fetch
         run_fetch()
     except Exception as e:
-        import logging
-        logging.getLogger(__name__).error(f"Background fetch failed: {e}")
+        logger.error(f"Background fetch failed: {e}")
 
 
 @app.route("/api/fetch", methods=["POST"])

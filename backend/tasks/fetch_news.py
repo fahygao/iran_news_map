@@ -13,11 +13,9 @@ from fetchers.classifier import classify_event
 from fetchers.translator import translate_event
 from models import insert_event, update_source_status, cleanup_old_data, init_db
 from config import DATA_RETENTION_DAYS
+from log_config import setup_logging
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-)
+setup_logging()
 logger = logging.getLogger(__name__)
 
 
