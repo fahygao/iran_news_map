@@ -26,7 +26,15 @@ export async function GET() {
       lomax: String(BBOX.lomax),
     });
 
+    const headers: Record<string, string> = {};
+    const user = process.env.OPENSKY_USERNAME;
+    const pass = process.env.OPENSKY_PASSWORD;
+    if (user && pass) {
+      headers["Authorization"] = "Basic " + Buffer.from(`${user}:${pass}`).toString("base64");
+    }
+
     const res = await fetch(`${OPENSKY_URL}?${params}`, {
+      headers,
       signal: AbortSignal.timeout(30_000),
     });
 
