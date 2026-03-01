@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 
+// Allow up to 60s for Vercel Hobby plan (default is 10s)
+export const maxDuration = 60;
+
 const OPENSKY_URL = "https://opensky-network.org/api/states/all";
 const BBOX = { lamin: 20, lomin: 30, lamax: 42, lomax: 65 };
 
