@@ -3,7 +3,9 @@ export type MarkerType = "rocket" | "explosion" | "fire" | "default";
 export interface NewsEvent {
   id: string;
   headline: string;
+  headline_zh: string | null;
   summary: string | null;
+  summary_zh: string | null;
   source_name: string;
   source_url: string;
   published_at: string;
@@ -45,7 +47,9 @@ export interface GeoFeature {
   properties: {
     id: string;
     headline: string;
+    headline_zh: string | null;
     summary: string | null;
+    summary_zh: string | null;
     source_name: string;
     source_url: string;
     published_at: string;
@@ -70,6 +74,7 @@ export interface TimelineDay {
   events: {
     id: string;
     headline: string;
+    headline_zh: string | null;
     published_at: string;
     category: Category;
     severity: Severity;

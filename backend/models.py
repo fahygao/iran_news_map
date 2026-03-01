@@ -79,6 +79,13 @@ def init_db():
         CREATE INDEX IF NOT EXISTS idx_pred_grid ON predictions(grid_lat, grid_lng);
         CREATE INDEX IF NOT EXISTS idx_pred_ip ON predictions(ip_hash, created_at);
     """)
+    # Add zh translation columns (safe if already exist)
+    for col in ("headline_zh", "summary_zh"):
+        try:
+            conn.execute(f"ALTER TABLE news_events ADD COLUMN {col} TEXT")
+        except Exception:
+            pass
+
     # Seed data source status rows
     sources = ["google_news", "gdelt_geo", "gdelt_doc"]
     for src in sources:
@@ -99,8 +106,8 @@ def insert_event(event: dict) -> bool:
              category, severity, latitude, longitude, location_name, location_approximate,
              image_url, data_source, goldstein_scale, cameo_code,
              marker_type, origin_latitude, origin_longitude, origin_name,
-             alert_sent, alert_sent_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+             alert_sent, alert_sent_at, headline_zh, summary_zh)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (
                 event.get("id", str(uuid.uuid4())),
                 event["headline"],
@@ -125,6 +132,8 @@ def insert_event(event: dict) -> bool:
                 event.get("origin_name"),
                 0,
                 None,
+                event.get("headline_zh"),
+                event.get("summary_zh"),
             ),
         )
         conn.commit()

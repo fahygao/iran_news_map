@@ -10,6 +10,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from fetchers.google_news import fetch_google_news
 from fetchers.gdelt import fetch_gdelt_geo
 from fetchers.classifier import classify_event
+from fetchers.translator import translate_event
 from models import insert_event, update_source_status, cleanup_old_data, init_db
 from config import DATA_RETENTION_DAYS
 
@@ -31,6 +32,7 @@ def run_fetch():
         google_articles = fetch_google_news()
         for article in google_articles:
             article = classify_event(article)
+            article = translate_event(article)
             if insert_event(article):
                 total_new += 1
         update_source_status("google_news", True)
@@ -45,6 +47,7 @@ def run_fetch():
         gdelt_events = fetch_gdelt_geo()
         for event in gdelt_events:
             event = classify_event(event)
+            event = translate_event(event)
             if insert_event(event):
                 total_new += 1
         update_source_status("gdelt_geo", True)

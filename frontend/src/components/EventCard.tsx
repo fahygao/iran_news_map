@@ -6,6 +6,7 @@ import SeverityBadge from "./SeverityBadge";
 
 interface EventCardProps {
   event: NewsEvent;
+  count?: number;
   isSelected?: boolean;
   onHover?: (id: string | null) => void;
   onClick?: (id: string) => void;
@@ -13,12 +14,15 @@ interface EventCardProps {
 
 export default function EventCard({
   event,
+  count = 1,
   isSelected,
   onHover,
   onClick,
 }: EventCardProps) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const timeAgo = getTimeAgo(event.published_at);
+  const headline = (locale === "zh" && event.headline_zh) ? event.headline_zh : event.headline;
+  const summary = (locale === "zh" && event.summary_zh) ? event.summary_zh : event.summary;
 
   return (
     <article
@@ -39,15 +43,22 @@ export default function EventCard({
         </span>
       </div>
       <h3 className="text-[12px] sm:text-[13px] font-medium leading-snug mb-0.5 sm:mb-1 text-gray-200">
-        {event.headline}
+        {headline}
       </h3>
-      {event.summary && (
+      {summary && (
         <p className="text-[11px] sm:text-[12px] text-gray-500 line-clamp-2 mb-1 sm:mb-1.5 leading-relaxed hidden sm:block">
-          {event.summary}
+          {summary}
         </p>
       )}
       <div className="flex items-center justify-between text-[10px] sm:text-[11px] text-gray-600">
-        <span>{event.source_name}</span>
+        <span>
+          {event.source_name}
+          {count > 1 && (
+            <span className="ml-1.5 text-[9px] sm:text-[10px] text-gray-500 bg-white/[0.06] px-1 py-0.5 rounded font-[family-name:var(--font-jetbrains)]">
+              &times;{count} {t("news.sources")}
+            </span>
+          )}
+        </span>
         {event.location_name && (
           <span className="font-[family-name:var(--font-jetbrains)] text-[9px] sm:text-[10px] text-gray-600">
             {event.location_name}

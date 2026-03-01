@@ -153,7 +153,9 @@ def api_events_geo():
                 "properties": {
                     "id": e["id"],
                     "headline": e["headline"],
+                    "headline_zh": e.get("headline_zh"),
                     "summary": e.get("summary"),
+                    "summary_zh": e.get("summary_zh"),
                     "source_name": e["source_name"],
                     "source_url": e["source_url"],
                     "published_at": e["published_at"],
@@ -208,6 +210,7 @@ def api_events_timeline():
             {
                 "id": e["id"],
                 "headline": e["headline"],
+                "headline_zh": e.get("headline_zh"),
                 "published_at": e["published_at"],
                 "category": e["category"],
                 "severity": e["severity"],
@@ -227,7 +230,9 @@ def _serialize_event(e: dict) -> dict:
     return {
         "id": e["id"],
         "headline": e["headline"],
+        "headline_zh": e.get("headline_zh"),
         "summary": e.get("summary"),
+        "summary_zh": e.get("summary_zh"),
         "source_name": e["source_name"],
         "source_url": e["source_url"],
         "published_at": e["published_at"],

@@ -67,6 +67,21 @@ export default function NewsList({
 
   const hasMore = events.length < total;
 
+  // Deduplicate by normalized headline
+  const dedupedEntries = (() => {
+    const map = new Map<string, { event: NewsEvent; count: number }>();
+    for (const event of events) {
+      const key = event.headline.toLowerCase().trim();
+      const existing = map.get(key);
+      if (existing) {
+        existing.count++;
+      } else {
+        map.set(key, { event, count: 1 });
+      }
+    }
+    return Array.from(map.values());
+  })();
+
   return (
     <div className="flex flex-col h-full bg-[#0a0c10]">
       <div className="px-3 sm:px-4 py-2 sm:py-2.5 border-b border-white/[0.04] flex items-center justify-between">
@@ -83,10 +98,11 @@ export default function NewsList({
             {t("news.noMatch")}
           </div>
         )}
-        {events.map((event) => (
+        {dedupedEntries.map(({ event, count }) => (
           <EventCard
             key={event.id}
             event={event}
+            count={count}
             isSelected={event.id === selectedEventId}
             onHover={onEventHover}
             onClick={onEventSelect}

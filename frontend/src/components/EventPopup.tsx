@@ -5,8 +5,10 @@ import { useI18n } from "@/lib/i18n";
 import SeverityBadge from "./SeverityBadge";
 
 export default function EventPopup({ feature }: { feature: GeoFeature }) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const p = feature.properties;
+  const headline = (locale === "zh" && p.headline_zh) ? p.headline_zh : p.headline;
+  const summary = (locale === "zh" && p.summary_zh) ? p.summary_zh : p.summary;
 
   return (
     <div className="min-w-[250px] max-w-[320px] text-gray-200">
@@ -15,17 +17,17 @@ export default function EventPopup({ feature }: { feature: GeoFeature }) {
         <span className="text-[11px] text-gray-500 capitalize">{t(`cat.${p.category}`)}</span>
       </div>
       <h3 className="font-semibold text-[13px] leading-tight mb-1.5 text-gray-100">
-        {p.headline}
+        {headline}
       </h3>
-      {p.summary && (
+      {summary && (
         <p className="text-[12px] text-gray-500 mb-2 line-clamp-3 leading-relaxed">
-          {p.summary}
+          {summary}
         </p>
       )}
       <div className="flex items-center justify-between text-[11px] text-gray-600">
         <span>{p.source_name}</span>
         <span className="font-[family-name:var(--font-jetbrains)]">
-          {new Date(p.published_at).toLocaleDateString()}
+          {new Date(p.published_at).toLocaleDateString(locale === "zh" ? "zh-CN" : "en-US")}
         </span>
       </div>
       {p.location_name && (

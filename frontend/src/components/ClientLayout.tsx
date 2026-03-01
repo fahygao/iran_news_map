@@ -9,38 +9,39 @@ function Header() {
 
   return (
     <header className="header-bar border-b border-white/[0.06] sticky top-0 z-50">
-      <nav className="max-w-screen-2xl mx-auto px-4 sm:px-5 h-12 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2.5 group">
+      <nav className="max-w-screen-2xl mx-auto px-3 sm:px-5 h-12 flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-1.5 sm:gap-2.5 group shrink-0">
           <div className="status-dot" />
-          <span className="text-[15px] font-semibold tracking-[-0.01em] text-gray-200">
+          <span className="text-[13px] sm:text-[15px] font-semibold tracking-[-0.01em] text-gray-200 whitespace-nowrap">
             <span className="iran-glow">IRAN</span>
-            <span className="text-gray-500 font-normal mx-1.5">/</span>
-            <span className="text-gray-400 font-medium">NEWS MAP</span>
+            <span className="text-gray-500 font-normal mx-1 sm:mx-1.5">/</span>
+            <span className="text-gray-400 font-medium hidden sm:inline">NEWS MAP</span>
+            <span className="text-gray-400 font-medium sm:hidden">NM</span>
           </span>
         </Link>
-        <div className="flex items-center gap-0.5">
+        <div className="flex items-center gap-0 sm:gap-0.5">
           <Link
             href="/"
-            className="nav-link px-2.5 sm:px-3 py-1.5 rounded text-[12px] sm:text-[13px] font-medium tracking-wide"
+            className="nav-link px-2 sm:px-3 py-1.5 rounded text-[11px] sm:text-[13px] font-medium tracking-wide"
           >
             {t("nav.map")}
           </Link>
           <Link
             href="/timeline"
-            className="nav-link px-2.5 sm:px-3 py-1.5 rounded text-[12px] sm:text-[13px] font-medium tracking-wide"
+            className="nav-link px-2 sm:px-3 py-1.5 rounded text-[11px] sm:text-[13px] font-medium tracking-wide"
           >
             {t("nav.timeline")}
           </Link>
           <Link
             href="/predict"
-            className="nav-link px-2.5 sm:px-3 py-1.5 rounded text-[12px] sm:text-[13px] font-medium tracking-wide"
+            className="nav-link px-2 sm:px-3 py-1.5 rounded text-[11px] sm:text-[13px] font-medium tracking-wide"
           >
             {t("nav.predict")}
           </Link>
-          <div className="w-px h-4 bg-white/[0.06] mx-1" />
+          <div className="w-px h-4 bg-white/[0.06] mx-0.5 sm:mx-1" />
           <button
             onClick={() => setLocale(locale === "en" ? "zh" : "en")}
-            className="lang-toggle px-2 py-1 rounded text-[11px] font-[family-name:var(--font-jetbrains)] tracking-wide cursor-pointer"
+            className="lang-toggle px-1.5 sm:px-2 py-1 rounded text-[11px] font-[family-name:var(--font-jetbrains)] tracking-wide cursor-pointer"
           >
             {locale === "en" ? "中文" : "EN"}
           </button>

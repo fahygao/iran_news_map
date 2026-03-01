@@ -29,6 +29,7 @@ const translations: Record<string, Record<Locale, string>> = {
   "news.loadMore": { en: "LOAD MORE", zh: "加载更多" },
   "news.loading": { en: "LOADING...", zh: "加载中..." },
   "news.readSource": { en: "Read source", zh: "阅读原文" },
+  "news.sources": { en: "sources", zh: "个来源" },
 
   // Map
   "map.hideZones": { en: "HIDE ZONES", zh: "隐藏区域" },

@@ -24,11 +24,17 @@ export default function Timeline({
   severity,
   days = 7,
 }: TimelineProps) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [timeline, setTimeline] = useState<TimelineDay[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set());
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  /** Extract YYYY-MM-DD in the user's local timezone. */
+  function toLocalDateKey(isoStr: string): string {
+    const d = new Date(isoStr);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  }
 
   function getRelativeDate(dateStr: string): { label: string; isToday: boolean } {
     const date = new Date(dateStr + "T00:00:00");
@@ -42,8 +48,9 @@ export default function Timeline({
     if (diff === 1) return { label: t("timeline.yesterday"), isToday: false };
     if (diff < 7) return { label: `${diff} ${t("timeline.daysAgo")}`, isToday: false };
 
+    const dateFmtLocale = locale === "zh" ? "zh-CN" : "en-US";
     return {
-      label: date.toLocaleDateString("en-US", {
+      label: date.toLocaleDateString(dateFmtLocale, {
         weekday: "short",
         month: "short",
         day: "numeric",
@@ -65,18 +72,27 @@ export default function Timeline({
   const fetchData = useCallback(async () => {
     try {
       const data = await getTimelineEvents({ days, category, severity });
-      setTimeline(data.timeline);
-      if (data.timeline.length > 0) {
-        const lastDay = data.timeline[data.timeline.length - 1];
-        const date = new Date(lastDay.date + "T00:00:00");
-        const now = new Date();
-        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const diff = Math.floor(
-          (today.getTime() - date.getTime()) / (1000 * 60 * 60 * 24)
-        );
-        if (diff === 0) {
-          setExpandedDays((prev) => new Set([...prev, lastDay.date]));
+
+      // Regroup events by the user's local date instead of UTC
+      const localGrouped: Record<string, TimelineDay["events"]> = {};
+      for (const day of data.timeline) {
+        for (const event of day.events) {
+          const localKey = toLocalDateKey(event.published_at);
+          if (!localGrouped[localKey]) localGrouped[localKey] = [];
+          localGrouped[localKey].push(event);
         }
+      }
+      const localTimeline: TimelineDay[] = Object.entries(localGrouped)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([date, events]) => ({ date, events }));
+
+      setTimeline(localTimeline);
+
+      // Auto-expand today
+      const now = new Date();
+      const todayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+      if (localGrouped[todayKey]) {
+        setExpandedDays((prev) => new Set([...prev, todayKey]));
       }
     } catch (err) {
       console.error("Failed to load timeline:", err);
@@ -199,7 +215,21 @@ export default function Timeline({
 
             {isExpanded && (
               <div className="ml-3 border-l border-white/[0.06] pl-3 sm:pl-5 space-y-1.5 sm:space-y-2">
-                {day.events.map((event) => (
+                {(() => {
+                  const dedupMap = new Map<string, { event: typeof day.events[0]; count: number }>();
+                  for (const event of day.events) {
+                    const key = event.headline.toLowerCase().trim();
+                    const existing = dedupMap.get(key);
+                    if (existing) {
+                      existing.count++;
+                    } else {
+                      dedupMap.set(key, { event, count: 1 });
+                    }
+                  }
+                  return Array.from(dedupMap.values());
+                })().map(({ event, count }) => {
+                  const headline = (locale === "zh" && event.headline_zh) ? event.headline_zh : event.headline;
+                  return (
                   <div
                     key={event.id}
                     className="event-card rounded-lg p-2.5 sm:p-3 bg-[#10131a] hover:bg-[#161a24] transition-colors"
@@ -209,15 +239,20 @@ export default function Timeline({
                       <span className="text-[10px] sm:text-[11px] text-gray-600 capitalize">
                         {t(`cat.${event.category}`)}
                       </span>
+                      {count > 1 && (
+                        <span className="text-[9px] sm:text-[10px] text-gray-500 bg-white/[0.06] px-1 py-0.5 rounded font-[family-name:var(--font-jetbrains)]">
+                          &times;{count} {t("news.sources")}
+                        </span>
+                      )}
                       <span className="text-[10px] sm:text-[11px] text-gray-700 font-[family-name:var(--font-jetbrains)] ml-auto">
                         {new Date(event.published_at).toLocaleTimeString(
-                          "en-US",
+                          locale === "zh" ? "zh-CN" : "en-US",
                           { hour: "2-digit", minute: "2-digit" }
                         )}
                       </span>
                     </div>
                     <h4 className="text-[12px] sm:text-[13px] font-medium text-gray-200 leading-snug">
-                      {event.headline}
+                      {headline}
                     </h4>
                     {event.location_name && (
                       <span className="text-[9px] sm:text-[10px] text-gray-600 font-[family-name:var(--font-jetbrains)] mt-1 inline-block">
@@ -225,7 +260,8 @@ export default function Timeline({
                       </span>
                     )}
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
