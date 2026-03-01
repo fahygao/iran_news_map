@@ -2,8 +2,10 @@
 
 When running under PythonAnywhere or other WSGI servers, stderr/stdout pipes can
 close unexpectedly, causing every logging call to raise OSError. This module
-provides a SafeStreamHandler that silently ignores stream write failures and
-a setup function that adds a file handler as a reliable fallback.
+provides:
+  - SafeStreamHandler: suppresses OSError on emit *and* handleError
+  - SafeStream: wraps sys.stdout/sys.stderr so direct writes never raise OSError
+  - setup_logging(): wires everything together with a file-based fallback
 """
 
 import logging
@@ -12,14 +14,51 @@ import os
 import sys
 
 
+class SafeStream:
+    """Drop-in wrapper for sys.stdout / sys.stderr that swallows broken-pipe errors.
+
+    Any OSError raised by write() or flush() is silently suppressed so that
+    library code using ``print()`` or direct ``sys.stderr.write()`` never crashes
+    the WSGI worker.
+    """
+
+    def __init__(self, underlying):
+        self._underlying = underlying
+
+    # Delegate attribute access to the underlying stream
+    def __getattr__(self, name):
+        return getattr(self._underlying, name)
+
+    def write(self, s):
+        try:
+            return self._underlying.write(s)
+        except OSError:
+            return 0
+
+    def flush(self):
+        try:
+            self._underlying.flush()
+        except OSError:
+            pass
+
+
 class SafeStreamHandler(logging.StreamHandler):
-    """StreamHandler that silently ignores OSError (broken pipe / write error)."""
+    """StreamHandler that silently ignores OSError (broken pipe / write error).
+
+    Overrides both ``emit`` and ``handleError`` so that a broken stderr never
+    produces traceback noise in the WSGI error log.
+    """
 
     def emit(self, record):
         try:
             super().emit(record)
         except OSError:
             pass
+
+    def handleError(self, record):
+        # Suppress all logging-internal errors when the stream is broken.
+        # The file handler will still capture the original log record.
+        pass
 
 
 def setup_logging():
@@ -32,7 +71,16 @@ def setup_logging():
     if root.handlers:
         return
 
+    # In production, never let the logging machinery raise exceptions.
+    logging.raiseExceptions = False
+
     root.setLevel(level)
+
+    # Wrap stdout/stderr so that direct writes (print, library code) are safe
+    if not isinstance(sys.stderr, SafeStream):
+        sys.stderr = SafeStream(sys.stderr)
+    if not isinstance(sys.stdout, SafeStream):
+        sys.stdout = SafeStream(sys.stdout)
 
     # Safe console handler (won't crash on broken pipes)
     stream_handler = SafeStreamHandler(sys.stderr)
