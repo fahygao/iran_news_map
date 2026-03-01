@@ -281,7 +281,7 @@ def api_submit_prediction():
 
 
 _flight_cache = {"data": None, "ts": 0}
-FLIGHT_CACHE_TTL = 30  # seconds
+FLIGHT_CACHE_TTL = 60  # seconds
 
 
 @app.route("/api/flights/geo")

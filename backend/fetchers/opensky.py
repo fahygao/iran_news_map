@@ -1,4 +1,5 @@
 import logging
+import os
 
 import requests
 
@@ -7,6 +8,14 @@ import config
 logger = logging.getLogger(__name__)
 
 OPENSKY_URL = "https://opensky-network.org/api/states/all"
+
+
+def _get_proxy():
+    """Return PythonAnywhere proxy settings if available."""
+    proxy = os.environ.get("https_proxy") or os.environ.get("HTTPS_PROXY")
+    if proxy:
+        return {"https": proxy, "http": os.environ.get("http_proxy", proxy)}
+    return None
 
 
 def fetch_flights() -> list[dict]:
@@ -24,7 +33,10 @@ def fetch_flights() -> list[dict]:
         auth = (config.OPENSKY_USERNAME, config.OPENSKY_PASSWORD)
 
     try:
-        resp = requests.get(OPENSKY_URL, params=params, auth=auth, timeout=15)
+        resp = requests.get(
+            OPENSKY_URL, params=params, auth=auth, timeout=45,
+            proxies=_get_proxy(),
+        )
         resp.raise_for_status()
         data = resp.json()
     except Exception as e:
