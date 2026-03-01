@@ -76,7 +76,10 @@ export async function getPredictions(): Promise<PredictionsResponse> {
 }
 
 export async function getFlights(): Promise<FlightsGeoResponse> {
-  return fetchAPI<FlightsGeoResponse>("/flights/geo");
+  // Use Vercel API route directly (bypasses PythonAnywhere proxy issues)
+  const res = await fetch("/api/flights/geo", { cache: "no-store" });
+  if (!res.ok) throw new Error(`Flights API error: ${res.status}`);
+  return res.json();
 }
 
 export async function submitPrediction(
