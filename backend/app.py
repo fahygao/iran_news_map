@@ -273,11 +273,20 @@ def api_submit_prediction():
     return jsonify(result), 201
 
 
+_last_fetch_time = None
+
+
 @app.route("/api/fetch", methods=["POST"])
 def api_trigger_fetch():
-    """Manually trigger a news fetch cycle (runs in background thread)."""
+    """Manually trigger a news fetch cycle (runs in background thread). Rate-limited to once per 30 min."""
+    global _last_fetch_time
+    now = datetime.now(timezone.utc)
+    if _last_fetch_time and (now - _last_fetch_time).total_seconds() < 1800:
+        remaining = 1800 - int((now - _last_fetch_time).total_seconds())
+        return jsonify({"status": "rejected", "message": f"Rate limited. Try again in {remaining}s"}), 429
     try:
         from tasks.fetch_news import run_fetch
+        _last_fetch_time = now
         thread = threading.Thread(target=run_fetch, daemon=True)
         thread.start()
         return jsonify({"status": "ok", "message": "Fetch started"})
