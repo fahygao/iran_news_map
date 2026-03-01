@@ -16,14 +16,16 @@ import "leaflet/dist/leaflet.css";
 import type {
   GeoEventsResponse,
   GeoFeature,
+  FlightsGeoResponse,
   Severity,
   Category,
   MarkerType,
 } from "@/types/events";
-import { getGeoEvents } from "@/lib/api";
+import { getGeoEvents, getFlights } from "@/lib/api";
 import { CONFLICT_ZONES } from "@/lib/conflictZones";
 import { useI18n } from "@/lib/i18n";
 import EventPopup from "./EventPopup";
+import FlightLayer from "./FlightLayer";
 
 const IRAN_CENTER: [number, number] = [32.4279, 53.688];
 const DEFAULT_ZOOM = 6;
@@ -78,8 +80,11 @@ export default function Map({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showZones, setShowZones] = useState(true);
+  const [showFlights, setShowFlights] = useState(false);
+  const [flightData, setFlightData] = useState<FlightsGeoResponse | null>(null);
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const flightIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const fetchData = useCallback(async (showLoader = true) => {
     try {
@@ -109,7 +114,29 @@ export default function Map({
     };
   }, [fetchData]);
 
+  // Flight polling — only when layer is visible
+  useEffect(() => {
+    if (!showFlights) {
+      setFlightData(null);
+      return;
+    }
+    const fetchFlightData = async () => {
+      try {
+        const data = await getFlights();
+        setFlightData(data);
+      } catch (err) {
+        console.error("Flight fetch failed:", err);
+      }
+    };
+    fetchFlightData();
+    flightIntervalRef.current = setInterval(fetchFlightData, 30_000);
+    return () => {
+      if (flightIntervalRef.current) clearInterval(flightIntervalRef.current);
+    };
+  }, [showFlights]);
+
   const features = geoData?.features || [];
+  const flights = flightData?.features || [];
 
   // Deduplicated attack routes: only rocket/explosion, grouped by origin name
   const routeLines = (() => {
@@ -171,6 +198,15 @@ export default function Map({
         className="zone-toggle absolute top-4 right-4 z-[1000] px-2.5 sm:px-3 py-1.5 rounded text-[10px] sm:text-[11px] font-[family-name:var(--font-jetbrains)] tracking-wider text-gray-400 hover:text-gray-200 cursor-pointer"
       >
         {showZones ? t("map.hideZones") : t("map.showZones")}
+      </button>
+
+      {/* Flights toggle */}
+      <button
+        onClick={() => setShowFlights(!showFlights)}
+        className="zone-toggle absolute top-12 right-4 z-[1000] px-2.5 sm:px-3 py-1.5 rounded text-[10px] sm:text-[11px] font-[family-name:var(--font-jetbrains)] tracking-wider text-gray-400 hover:text-gray-200 cursor-pointer"
+        style={showFlights ? { color: "#38bdf8" } : undefined}
+      >
+        {showFlights ? t("map.hideFlights") : t("map.showFlights")}
       </button>
 
       {/* Legend - hidden on mobile, visible on sm+ */}
@@ -341,6 +377,9 @@ export default function Map({
             </Marker>
           ))}
         </MarkerClusterGroup>
+
+        {/* Flight layer — animated */}
+        <FlightLayer flights={flights} visible={showFlights} />
       </MapContainer>
 
       {!loading && features.length === 0 && (

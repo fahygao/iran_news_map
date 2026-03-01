@@ -5,6 +5,7 @@ import type {
   StatusResponse,
   PredictionsResponse,
   PredictionSubmitResponse,
+  FlightsGeoResponse,
   Category,
   Severity,
 } from "@/types/events";
@@ -72,6 +73,10 @@ export async function getStatus(): Promise<StatusResponse> {
 
 export async function getPredictions(): Promise<PredictionsResponse> {
   return fetchAPI<PredictionsResponse>("/predictions");
+}
+
+export async function getFlights(): Promise<FlightsGeoResponse> {
+  return fetchAPI<FlightsGeoResponse>("/flights/geo");
 }
 
 export async function submitPrediction(

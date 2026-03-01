@@ -1,6 +1,7 @@
 import hashlib
 import json
 import threading
+import time
 from datetime import datetime, timedelta, timezone
 
 from flask import Flask, jsonify, request
@@ -8,6 +9,7 @@ from flask_cors import CORS
 
 import config
 import models
+from fetchers.opensky import fetch_flights
 
 app = Flask(__name__)
 CORS(app, origins=["https://iran-news-map.vercel.app", "http://localhost:3000"])
@@ -276,6 +278,38 @@ def api_submit_prediction():
 
     result = models.insert_prediction(lat, lng, ip_hash)
     return jsonify(result), 201
+
+
+_flight_cache = {"data": None, "ts": 0}
+FLIGHT_CACHE_TTL = 30  # seconds
+
+
+@app.route("/api/flights/geo")
+def api_flights_geo():
+    now = time.time()
+    if _flight_cache["data"] is None or (now - _flight_cache["ts"]) > FLIGHT_CACHE_TTL:
+        flights = fetch_flights()
+        features = []
+        for f in flights:
+            features.append({
+                "type": "Feature",
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [f["longitude"], f["latitude"]],
+                },
+                "properties": {
+                    "icao24": f["icao24"],
+                    "callsign": f["callsign"],
+                    "origin_country": f["origin_country"],
+                    "altitude": f["altitude"],
+                    "velocity": f["velocity"],
+                    "heading": f["heading"],
+                },
+            })
+        _flight_cache["data"] = {"type": "FeatureCollection", "features": features}
+        _flight_cache["ts"] = now
+
+    return jsonify(_flight_cache["data"])
 
 
 _last_fetch_time = None

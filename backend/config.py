@@ -29,5 +29,9 @@ GDELT_DOC_ENDPOINT = "https://api.gdeltproject.org/api/v2/doc/doc"
 SEVERITY_LEVELS = ["critical", "high", "medium", "low"]
 CATEGORIES = ["conflict", "military", "diplomatic", "political", "humanitarian"]
 
+OPENSKY_USERNAME = os.getenv("OPENSKY_USERNAME", "")
+OPENSKY_PASSWORD = os.getenv("OPENSKY_PASSWORD", "")
+OPENSKY_BBOX = {"lamin": 14.5, "lomin": 21.25, "lamax": 47.5, "lomax": 73.75}
+
 DATA_RETENTION_DAYS = 90
 CACHE_MAX_AGE = 300  # 5 minutes

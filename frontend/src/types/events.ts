@@ -116,3 +116,21 @@ export interface PredictionSubmitResponse {
   grid_lat: number;
   grid_lng: number;
 }
+
+export interface FlightFeature {
+  type: "Feature";
+  geometry: { type: "Point"; coordinates: [number, number] };
+  properties: {
+    icao24: string;
+    callsign: string;
+    origin_country: string;
+    altitude: number | null;
+    velocity: number | null;
+    heading: number | null;
+  };
+}
+
+export interface FlightsGeoResponse {
+  type: "FeatureCollection";
+  features: FlightFeature[];
+}

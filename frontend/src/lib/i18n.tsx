@@ -94,6 +94,15 @@ const translations: Record<string, Record<Locale, string>> = {
   "predict.confirm": { en: "CONFIRM", zh: "确认" },
   "predict.cancel": { en: "CANCEL", zh: "取消" },
   "predict.tapToConfirm": { en: "Tap CONFIRM above", zh: "点击上方确认" },
+
+  // Flights
+  "map.flights": { en: "FLIGHTS", zh: "航班" },
+  "map.showFlights": { en: "SHOW FLIGHTS", zh: "显示航班" },
+  "map.hideFlights": { en: "HIDE FLIGHTS", zh: "隐藏航班" },
+  "flight.callsign": { en: "Callsign", zh: "呼号" },
+  "flight.altitude": { en: "Altitude", zh: "高度" },
+  "flight.speed": { en: "Speed", zh: "速度" },
+  "flight.country": { en: "Origin", zh: "起飞国" },
 };
 
 interface I18nContextValue {
