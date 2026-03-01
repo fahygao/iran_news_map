@@ -6,7 +6,7 @@ load_dotenv()
 DATABASE_PATH = os.getenv("DATABASE_PATH", "./database.db")
 GMAIL_CREDENTIALS_PATH = os.getenv("GMAIL_CREDENTIALS_PATH", "./credentials.json")
 GMAIL_TOKEN_PATH = os.getenv("GMAIL_TOKEN_PATH", "./token.json")
-ALERT_RECIPIENT = os.getenv("ALERT_RECIPIENT", "")
+ALERT_RECIPIENT = os.getenv("ALERT_RECIPIENT", "")  # comma-separated for multiple: "a@gmail.com,b@gmail.com"
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 FLASK_ENV = os.getenv("FLASK_ENV", "production")
 

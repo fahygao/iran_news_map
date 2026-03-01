@@ -119,16 +119,19 @@ def _build_digest_html(events: list[dict]) -> str:
 
 
 def _send_email(service, subject: str, html_body: str) -> bool:
-    """Send email via Gmail API."""
-    message = MIMEMultipart("alternative")
-    message["to"] = ALERT_RECIPIENT
-    message["subject"] = subject
-    message.attach(MIMEText(html_body, "html"))
+    """Send email via Gmail API to all recipients (comma-separated in config)."""
+    recipients = [r.strip() for r in ALERT_RECIPIENT.split(",") if r.strip()]
+    for recipient in recipients:
+        message = MIMEMultipart("alternative")
+        message["to"] = recipient
+        message["subject"] = subject
+        message.attach(MIMEText(html_body, "html"))
 
-    raw = base64.urlsafe_b64encode(message.as_bytes()).decode()
-    body = {"raw": raw}
+        raw = base64.urlsafe_b64encode(message.as_bytes()).decode()
+        body = {"raw": raw}
 
-    service.users().messages().send(userId="me", body=body).execute()
+        service.users().messages().send(userId="me", body=body).execute()
+        logger.info(f"Email sent to {recipient}")
     return True
 
 
