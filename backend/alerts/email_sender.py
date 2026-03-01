@@ -135,9 +135,20 @@ def _send_email(service, subject: str, html_body: str) -> bool:
     return True
 
 
+_last_email_time = 0
+EMAIL_INTERVAL = 6 * 3600  # 6 hours in seconds
+
+
 def send_pending_alerts():
-    """Check for un-alerted critical/high events and send digest email."""
+    """Check for un-alerted critical/high events and send digest email (max once per 6 hours)."""
+    global _last_email_time
     from models import get_pending_alerts, mark_events_alerted, insert_alert
+
+    now = time.time()
+    if now - _last_email_time < EMAIL_INTERVAL:
+        remaining_h = (EMAIL_INTERVAL - (now - _last_email_time)) / 3600
+        logger.info(f"Email rate limited, next email in {remaining_h:.1f}h")
+        return
 
     pending = get_pending_alerts()
     if not pending:
@@ -161,6 +172,7 @@ def send_pending_alerts():
     for attempt in range(max_retries):
         try:
             _send_email(service, subject, html)
+            _last_email_time = time.time()
             logger.info(f"Alert email sent to {ALERT_RECIPIENT}")
             mark_events_alerted(event_ids, alert_id)
             insert_alert(
