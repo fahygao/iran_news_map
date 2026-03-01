@@ -274,6 +274,17 @@ def api_submit_prediction():
 
 
 _last_fetch_time = None
+_fetch_lock = threading.Lock()
+
+
+def _safe_fetch():
+    """Run fetch in a way that won't crash the WSGI worker."""
+    try:
+        from tasks.fetch_news import run_fetch
+        run_fetch()
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error(f"Background fetch failed: {e}")
 
 
 @app.route("/api/fetch", methods=["POST"])
@@ -284,14 +295,23 @@ def api_trigger_fetch():
     if _last_fetch_time and (now - _last_fetch_time).total_seconds() < 1800:
         remaining = 1800 - int((now - _last_fetch_time).total_seconds())
         return jsonify({"status": "rejected", "message": f"Rate limited. Try again in {remaining}s"}), 429
+    if not _fetch_lock.acquire(blocking=False):
+        return jsonify({"status": "rejected", "message": "Fetch already in progress"}), 429
     try:
-        from tasks.fetch_news import run_fetch
         _last_fetch_time = now
-        thread = threading.Thread(target=run_fetch, daemon=True)
+        thread = threading.Thread(target=lambda: _run_and_release(), daemon=True)
         thread.start()
         return jsonify({"status": "ok", "message": "Fetch started"})
     except Exception as e:
+        _fetch_lock.release()
         return jsonify({"status": "error", "message": str(e)}), 500
+
+
+def _run_and_release():
+    try:
+        _safe_fetch()
+    finally:
+        _fetch_lock.release()
 
 
 if __name__ == "__main__":
