@@ -26,6 +26,7 @@ import { CONFLICT_ZONES } from "@/lib/conflictZones";
 import { useI18n } from "@/lib/i18n";
 import EventPopup from "./EventPopup";
 import FlightLayer from "./FlightLayer";
+import CountryBordersLayer from "./CountryBordersLayer";
 
 const IRAN_CENTER: [number, number] = [32.4279, 53.688];
 const DEFAULT_ZOOM = 6;
@@ -81,6 +82,7 @@ export default function Map({
   const [error, setError] = useState<string | null>(null);
   const [showZones, setShowZones] = useState(true);
   const [showFlights, setShowFlights] = useState(false);
+  const [showBorders, setShowBorders] = useState(true);
   const [flightData, setFlightData] = useState<FlightsGeoResponse | null>(null);
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -207,6 +209,15 @@ export default function Map({
         style={showFlights ? { color: "#38bdf8" } : undefined}
       >
         {showFlights ? t("map.hideFlights") : t("map.showFlights")}
+      </button>
+
+      {/* Borders toggle */}
+      <button
+        onClick={() => setShowBorders(!showBorders)}
+        className="zone-toggle absolute top-20 right-4 z-[1000] px-2.5 sm:px-3 py-1.5 rounded text-[10px] sm:text-[11px] font-[family-name:var(--font-jetbrains)] tracking-wider text-gray-400 hover:text-gray-200 cursor-pointer"
+        style={showBorders ? { color: "#a78bfa" } : undefined}
+      >
+        {showBorders ? t("map.hideBorders") : t("map.showBorders")}
       </button>
 
       {/* Legend - hidden on mobile, visible on sm+ */}
@@ -377,6 +388,9 @@ export default function Map({
             </Marker>
           ))}
         </MarkerClusterGroup>
+
+        {/* Country borders + labels */}
+        <CountryBordersLayer visible={showBorders} />
 
         {/* Flight layer — animated */}
         <FlightLayer flights={flights} visible={showFlights} />

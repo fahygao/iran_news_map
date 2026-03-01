@@ -103,6 +103,10 @@ const translations: Record<string, Record<Locale, string>> = {
   "flight.altitude": { en: "Altitude", zh: "高度" },
   "flight.speed": { en: "Speed", zh: "速度" },
   "flight.country": { en: "Origin", zh: "起飞国" },
+
+  // Country borders
+  "map.showBorders": { en: "SHOW BORDERS", zh: "显示国界" },
+  "map.hideBorders": { en: "HIDE BORDERS", zh: "隐藏国界" },
 };
 
 interface I18nContextValue {
