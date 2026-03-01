@@ -1,5 +1,6 @@
 import hashlib
 import json
+import threading
 from datetime import datetime, timedelta, timezone
 
 from flask import Flask, jsonify, request
@@ -274,11 +275,12 @@ def api_submit_prediction():
 
 @app.route("/api/fetch", methods=["POST"])
 def api_trigger_fetch():
-    """Manually trigger a news fetch cycle."""
+    """Manually trigger a news fetch cycle (runs in background thread)."""
     try:
         from tasks.fetch_news import run_fetch
-        run_fetch()
-        return jsonify({"status": "ok", "message": "Fetch completed"})
+        thread = threading.Thread(target=run_fetch, daemon=True)
+        thread.start()
+        return jsonify({"status": "ok", "message": "Fetch started"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
