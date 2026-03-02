@@ -226,8 +226,8 @@ def api_events_timeline():
         )
 
     timeline = [
-        {"date": date, "events": evts}
-        for date, evts in sorted(grouped.items())
+        {"date": date, "events": sorted(evts, key=lambda e: e["published_at"], reverse=True)}
+        for date, evts in sorted(grouped.items(), reverse=True)
     ]
 
     return jsonify({"timeline": timeline})
